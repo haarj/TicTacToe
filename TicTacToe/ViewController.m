@@ -74,6 +74,8 @@
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Tic Tac No..." message:@"You're too slow!" delegate:self cancelButtonTitle:nil otherButtonTitles:@"Next Player", nil];
             [alertView show];
 
+            [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(countDown:) userInfo:nil repeats:YES];
+
         } else if ([self.whichPlayerLabel.text isEqual:@"O"])
         {
             self.whichPlayerLabel.text = @"X";
@@ -84,6 +86,8 @@
 
             UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Tic Tac No..." message:@"You're too slow!" delegate:self cancelButtonTitle:nil otherButtonTitles:@"Next Player", nil];
             [alertView show];
+
+            [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(countDown:) userInfo:nil repeats:YES];
 
         }
         [timer invalidate];
