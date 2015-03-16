@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+@interface ViewController () <UIAlertViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *labelOne;
 @property (weak, nonatomic) IBOutlet UILabel *labelTwo;
@@ -20,241 +20,420 @@
 @property (weak, nonatomic) IBOutlet UILabel *labelEight;
 @property (weak, nonatomic) IBOutlet UILabel *labelNine;
 @property (weak, nonatomic) IBOutlet UILabel *whichPlayerLabel;
-
-@property (nonatomic) NSString *whoWon;
-
-
+@property (weak, nonatomic) IBOutlet UILabel *timerLabel;
+@property (nonatomic) UILabel *selectedLabel;
+@property (nonatomic) NSArray *labelsArray;
+- (void)clearBoard;
+- (BOOL)isBoardFilled;
+- (void)countDown:(NSTimer *)timer;
 
 @end
 
 @implementation ViewController
+
+
+- (void)clearBoard
 {
+    self.labelOne.text = @"";
+    self.labelTwo.text = @"";
+    self.labelThree.text = @"";
+    self.labelFour.text = @"";
+    self.labelFive.text = @"";
+    self.labelSix.text = @"";
+    self.labelSeven.text = @"";
+    self.labelEight.text = @"";
+    self.labelNine.text = @"";
 
-    NSInteger integers[10]; // use 1-9; ignore index 0;
-
+    //nil value puts something in label indefinitely
+    //@""empties it
 
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
-
-
-    
-
-    //first player
+    self.labelsArray = @[self.labelOne, self.labelTwo, self.labelThree, self.labelFour, self.labelFive, self.labelSix, self.labelSeven, self.labelEight, self.labelNine];
     self.whichPlayerLabel.text = @"X";
     self.whichPlayerLabel.textColor = [UIColor blueColor];
+
+    self.timerLabel.text = @"10";
+    [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(countDown:) userInfo:nil repeats:YES];
 }
 
-
-
-- (IBAction)onLabelTapped:(UITapGestureRecognizer *)sender
+- (void)countDown:(NSTimer *)timer
 {
-    CGPoint point = [sender locationInView:self.view];
+    self.timerLabel.text = [NSString stringWithFormat:@"%d",[self.timerLabel.text  intValue] - 1];
+    if ([self.timerLabel.text isEqualToString:@"0"]) {
+        if ([self.whichPlayerLabel.text isEqual:@"X"]) {
+            self.whichPlayerLabel.text = @"O";
+            self.whichPlayerLabel.textColor = [UIColor redColor];
+            self.timerLabel.text = @"10";
 
+            [timer invalidate];
 
-    NSLog(@" current player is %@", self.whichPlayerLabel.text);
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Tic Tac No..." message:@"You're too slow!" delegate:self cancelButtonTitle:nil otherButtonTitles:@"Next Player", nil];
+            [alertView show];
 
-    //assign X or O to tapped Label
-    [self findLabelUsingPoint:point];
+        } else if ([self.whichPlayerLabel.text isEqual:@"O"])
+        {
+            self.whichPlayerLabel.text = @"X";
+            self.whichPlayerLabel.textColor = [UIColor blueColor];
+            self.timerLabel.text = @"10";
 
-    self.whoWon = [self checkWhoWon];
+            [timer invalidate];
 
-    if(![self.whoWon isEqualToString:@""]){  // if not empty string, someone won
+            UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Tic Tac No..." message:@"You're too slow!" delegate:self cancelButtonTitle:nil otherButtonTitles:@"Next Player", nil];
+            [alertView show];
 
-        NSMutableString *str = [NSMutableString new];
-        [str appendFormat:@"Congradulations! Player %@ Won!", self.whoWon];
-
-        NSLog(@"00000 %@",str);
-
-       // UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:str  message:str delegate:self cancelButtonTitle:@"Done" otherButtonTitles:@"Play again" otherButtonTitles: nil];
-
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:str message:nil delegate:self cancelButtonTitle:@"Done" otherButtonTitles:@"Play Again", nil];
-
-        //UIAlertView * alert =[[UIAlertView alloc ] initWithTitle:@"New Stock Symbol" message:@"Enter new stock symbol" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles: nil];
-
-
-        [alertView show];
+        }
+        [timer invalidate];
     }
-
-
-
-
 }
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     if (buttonIndex == 0) {
-
-    } else if (buttonIndex == 1){ //Play again
-
-        self.labelOne.text = @"";
-        self.labelTwo.text = @"";
-        self.labelThree.text = @"";
-        self.labelFour.text = @"";
-        self.labelFive.text = @"";
-        self.labelSix.text = @"";
-        self.labelSeven.text = @"";
-        self.labelEight.text = @"";
-        self.labelNine.text = @"";
-
-        self.whichPlayerLabel.text = @"X";
-
-        for (int i=1; i<10; i++) {
-            integers[i] = 0;
-        }
+        self.timerLabel.text = @"10";
     }
 }
 
+- (void)xAlertView:(UIAlertView *)xAlertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0) {
+        self.timerLabel.text = @"10";
+    }
+}
+
+- (void)oAlertView:(UIAlertView *)oAlertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 0) {
+        self.timerLabel.text = @"10";
+    }
+}
+
+#pragma METHODS
+
+- (BOOL)isBoardFilled
+{
+
+    for (int i = 0; i < self.labelsArray.count; i++) {
+
+        UILabel *someLabel = self.labelsArray[i];
+        if ([someLabel.text isEqual:@""])
+        {
+            NSLog(@"FALSE");
+            return NO;
+        }
+    }
+    return TRUE;
+}
 
 - (void)findLabelUsingPoint:(CGPoint)point
 {
-    // check if point is in this frame?
-
-
-    if(CGRectContainsPoint(self.labelOne.frame, point)){
-
-        // place X or O
-        integers[1] = [self assignLabelValue:self.labelOne];
+    self.selectedLabel = nil;
+    for (int i = 0; i < self.labelsArray.count; i++) {
+        UILabel *someLabel = self.labelsArray[i];
+        if (CGRectContainsPoint(someLabel.frame, point))
+        {
+            self.selectedLabel = someLabel;
+            break;
+        }
     }
-    else if(CGRectContainsPoint(self.labelTwo.frame, point)){
-        // place X or O
-        integers[2] = [self assignLabelValue:self.labelTwo];
-
-    }else if(CGRectContainsPoint(self.labelThree.frame, point)){
-
-        // place X or O
-        integers[3] =[self assignLabelValue:self.labelThree];
-
-    }else if(CGRectContainsPoint(self.labelFour.frame, point)){
-        // place X or O
-        integers[4] =[self assignLabelValue:self.labelFour];
-
-    }else if(CGRectContainsPoint(self.labelFive.frame, point)){
-        // place X or O
-        integers[5] =[self assignLabelValue:self.labelFive];
-
-    }else if(CGRectContainsPoint(self.labelSix.frame, point)){
-        // place X or O
-        integers[6] =[self assignLabelValue:self.labelSix];
-
-    }else if(CGRectContainsPoint(self.labelSeven.frame, point)){
-        // place X or O
-        integers[7] =[self assignLabelValue:self.labelSeven];
-
-    }else if(CGRectContainsPoint(self.labelEight.frame, point)){
-        // place X or O
-        integers[8] =[self assignLabelValue:self.labelEight];
-
-    }else if(CGRectContainsPoint(self.labelNine.frame, point)){
-        // place X or O
-        integers[9] =[self assignLabelValue:self.labelNine];
-    }
-
 }
 
-
-
-
--(NSInteger) assignLabelValue: (UILabel *) label
+- (void)playerXAlert
 {
-    // place X or O
-    // if label already has "O" or "X"-> do nothing
-    if([label.text isEqualToString:@""]){
+    UIAlertView *xAlertView = [[UIAlertView alloc] initWithTitle:@"Player X Won!" message:nil delegate:self cancelButtonTitle:nil otherButtonTitles:@"Try Again", nil];
+    [xAlertView  show];
+}
 
-        if([self.whichPlayerLabel.text isEqualToString:@"X"]){
-            label.text= @"X";
-            label.textColor = [UIColor blueColor];
-        } else {
-            label.text= @"O";
-            label.textColor = [UIColor redColor];
+- (void)playerOAlert
+{
+    UIAlertView *oAlertView = [[UIAlertView alloc] initWithTitle:@"Player O Won!" message:nil delegate:self cancelButtonTitle:nil otherButtonTitles:@"Try Again", nil];
+    [oAlertView  show];
+}
+
+#pragma Gestures
+
+- (IBAction)onLabelTapped:(UITapGestureRecognizer *)sender
+{
+    CGPoint point = [sender locationInView:self.view];
+
+    self.timerLabel.text = @"10";
+
+    [self findLabelUsingPoint:point];
+    if (self.selectedLabel)
+    {
+        self.timerLabel.text = @"10";
+
+        if ([self.whichPlayerLabel.text  isEqual: @"X"]) {
+            self.selectedLabel.text = @"X";
+            self.selectedLabel.textColor = [UIColor blueColor];
+        } else
+        {
+            self.selectedLabel.textColor = [UIColor redColor];
+            self.selectedLabel.text = @"O";
         }
-
-
-        // change to another player
-        if([self.whichPlayerLabel.text isEqualToString:@"X"]){
+        if ([self.selectedLabel.text isEqual:@"X"]) {
             self.whichPlayerLabel.text = @"O";
             self.whichPlayerLabel.textColor = [UIColor redColor];
-        }
-        else {
+        } else
+        {
             self.whichPlayerLabel.text = @"X";
             self.whichPlayerLabel.textColor = [UIColor blueColor];
         }
     }
-
-    if([label.text isEqualToString:@"X"]){
-        return (NSInteger) 1; // player X
-    } else {
-        return (NSInteger) 100; // player O
+    else
+    {
+        CGPoint point = [sender locationInView:self.view];
+        self.whichPlayerLabel.center = point;
     }
+    {
 
+        if ([self.labelOne.text isEqual:@"X"] && [self.labelOne.text isEqual:self.labelTwo.text] && [self.labelTwo.text isEqual:self.labelThree.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelFour.text isEqual:@"X"] && [self.labelFour.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSix.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelSeven.text isEqual:@"X"] && [self.labelSeven.text isEqual:self.labelEight.text] && [self.labelEight.text isEqual:self.labelNine.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelOne.text isEqual:@"X"] && [self.labelOne.text isEqual:self.labelFour.text] && [self.labelFour.text isEqual:self.labelSeven.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelTwo.text isEqual:@"X"] && [self.labelTwo.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelEight.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelThree.text isEqual:@"X"] && [self.labelThree.text isEqual:self.labelSix.text] && [self.labelSix.text isEqual:self.labelNine.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelOne.text isEqual:@"X"] && [self.labelOne.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelNine.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelThree.text isEqual:@"X"] && [self.labelThree.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSeven.text]) {
+
+            [self playerXAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelOne.text isEqual:@"O"] && [self.labelOne.text isEqual:self.labelTwo.text] && [self.labelTwo.text isEqual:self.labelThree.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelFour.text isEqual:@"O"] && [self.labelFour.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSix.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelSeven.text isEqual:@"O"] && [self.labelSeven.text isEqual:self.labelEight.text] && [self.labelEight.text isEqual:self.labelNine.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelOne.text isEqual:@"O"] && [self.labelOne.text isEqual:self.labelFour.text] && [self.labelFour.text isEqual:self.labelSeven.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelTwo.text isEqual:@"O"] && [self.labelTwo.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelEight.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+        } else if ([self.labelThree.text isEqual:@"O"] && [self.labelThree.text isEqual:self.labelSix.text] && [self.labelSix.text isEqual:self.labelNine.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+
+        } else if ([self.labelOne.text isEqual:@"O"] && [self.labelOne.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelNine.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+            
+            
+        } else if ([self.labelThree.text isEqual:@"O"] && [self.labelThree.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSeven.text]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+
+        } else if ([self isBoardFilled]) {
+
+            [self playerOAlert];
+            [self clearBoard];
+
+        }
+    }
 }
 
-
--(NSString *) checkWhoWon
+- (IBAction)onLabelDragged:(UIPanGestureRecognizer *)sender
 {
-
-    NSString *string = [NSString new];
-
-    // each X = 1; if there are 3 (Xs) in a line, the total is 3 and player X won
-    // each O = 100; if there are 3 (Os) in a line, thetotal will be 300 and player O won
-    
-
-    if(
-            [self isWon:integers[1] b:integers[2] c:integers[3] total:3]
-       ||   [self isWon:integers[4] b:integers[5] c:integers[6] total:3]
-       ||   [self isWon:integers[7] b:integers[8] c:integers[9] total:3]
-       ||   [self isWon:integers[1] b:integers[4] c:integers[7] total:3]
-       ||   [self isWon:integers[2] b:integers[5] c:integers[8] total:3]
-       ||   [self isWon:integers[3] b:integers[6] c:integers[9] total:3]
-       ||   [self isWon:integers[1] b:integers[5] c:integers[9] total:3]
-       ||   [self isWon:integers[3] b:integers[5] c:integers[5] total:3]
-       )
+    if (sender.state == UIGestureRecognizerStateEnded)
     {
-        self.whichPlayerLabel.text = @"Player X Won";
-        string = @"X";
+        CGPoint point = [sender locationInView:self.view];
+
+        self.timerLabel.text = @"10";
+
+        [self findLabelUsingPoint:point];
+        if (self.selectedLabel)
+        {
+            self.timerLabel.text = @"10";
+
+            if ([self.whichPlayerLabel.text  isEqual: @"X"])
+            {
+                self.selectedLabel.text = @"X";
+                self.selectedLabel.textColor = [UIColor blueColor];
+            } else {
+                self.selectedLabel.textColor = [UIColor redColor];
+                self.selectedLabel.text = @"O";
+            }
+            if ([self.selectedLabel.text isEqual:@"X"])
+            {
+                self.whichPlayerLabel.text = @"O";
+                self.whichPlayerLabel.textColor = [UIColor redColor];
+            } else
+            {
+                self.whichPlayerLabel.text = @"X";
+                self.whichPlayerLabel.textColor = [UIColor blueColor];
+            }
+        } else
+        {
+            CGPoint point = [sender locationInView:self.view];
+            self.whichPlayerLabel.center = point;
+        }
+        {
+
+            if ([self.labelOne.text isEqual:@"X"] && [self.labelOne.text isEqual:self.labelTwo.text] && [self.labelTwo.text isEqual:self.labelThree.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelFour.text isEqual:@"X"] && [self.labelFour.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSix.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelSeven.text isEqual:@"X"] && [self.labelSeven.text isEqual:self.labelEight.text] && [self.labelEight.text isEqual:self.labelNine.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelOne.text isEqual:@"X"] && [self.labelOne.text isEqual:self.labelFour.text] && [self.labelFour.text isEqual:self.labelSeven.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelTwo.text isEqual:@"X"] && [self.labelTwo.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelEight.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelThree.text isEqual:@"X"] && [self.labelThree.text isEqual:self.labelSix.text] && [self.labelSix.text isEqual:self.labelNine.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelOne.text isEqual:@"X"] && [self.labelOne.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelNine.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelThree.text isEqual:@"X"] && [self.labelThree.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSeven.text]) {
+
+                [self playerXAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelOne.text isEqual:@"O"] && [self.labelOne.text isEqual:self.labelTwo.text] && [self.labelTwo.text isEqual:self.labelThree.text]) {
+
+                [self playerOAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelFour.text isEqual:@"O"] && [self.labelFour.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSix.text]) {
+
+                [self playerOAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelSeven.text isEqual:@"O"] && [self.labelSeven.text isEqual:self.labelEight.text] && [self.labelEight.text isEqual:self.labelNine.text]) {
+
+                [self playerOAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelOne.text isEqual:@"O"] && [self.labelOne.text isEqual:self.labelFour.text] && [self.labelFour.text isEqual:self.labelSeven.text]) {
+
+                [self playerOAlert];
+                [self clearBoard];
+
+
+            } else if ([self.labelTwo.text isEqual:@"O"] && [self.labelTwo.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelEight.text]) {
+
+                [self playerOAlert];
+                [self clearBoard];
+
+            } else if ([self.labelThree.text isEqual:@"O"] && [self.labelThree.text isEqual:self.labelSix.text] && [self.labelSix.text isEqual:self.labelNine.text]) {
+                
+                [self playerOAlert];
+                [self clearBoard];
+                
+                
+            } else if ([self.labelOne.text isEqual:@"O"] && [self.labelOne.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelNine.text]) {
+                
+                [self playerOAlert];
+                [self clearBoard];
+                
+                
+            } else if ([self.labelThree.text isEqual:@"O"] && [self.labelThree.text isEqual:self.labelFive.text] && [self.labelFive.text isEqual:self.labelSeven.text]) {
+                
+                [self playerOAlert];
+                [self clearBoard];
+                
+                
+            } else if ([self isBoardFilled]) {
+                
+                [self playerOAlert];
+                [self clearBoard];
+                
+            }
+        }
     }
-
-    else if(
-            [self isWon:integers[1] b:integers[2] c:integers[3] total:300]
-       ||   [self isWon:integers[4] b:integers[5] c:integers[6] total:300]
-       ||   [self isWon:integers[7] b:integers[8] c:integers[9] total:300]
-       ||   [self isWon:integers[1] b:integers[4] c:integers[7] total:300]
-       ||   [self isWon:integers[2] b:integers[5] c:integers[8] total:300]
-       ||   [self isWon:integers[3] b:integers[6] c:integers[9] total:300]
-       ||   [self isWon:integers[1] b:integers[5] c:integers[9] total:300]
-       ||   [self isWon:integers[3] b:integers[5] c:integers[5] total:300]
-       )
-    {
-        self.whichPlayerLabel.text = @"Player O Won";
-        string = @"O";
-    }
-
-    else {
-        string = @""; // no one won
-    }
-
-    for (int i=1; i<10; i++) {
-        NSLog(@"dump array---%ld",integers[i]);
-    }
-
-     return string; //player who won
-
 }
-
--(BOOL) isWon:(NSInteger) a b:(NSInteger) b c:(NSInteger) c total:(NSInteger) total {
-
-    // each X = 1; if there are 3 (Xs) in a line, the total is 3 and player X won
-    // each O = 100; if there are 3 (Os) in a line, thetotal will be 300 and player O won
-
-    if((a+b+c) == total){
-        return YES;
-    }
-    else {
-        return NO;
-    }
-}
-
 
 @end
